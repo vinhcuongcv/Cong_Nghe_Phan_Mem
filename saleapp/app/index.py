@@ -1,8 +1,7 @@
 import math
-
-from flask import render_template, request, redirect
-import dao
-from app import app, login
+from flask import render_template, request, redirect, jsonify, session
+import dao, utils
+from saleapp.app import app, login
 from flask_login import login_user, logout_user
 
 
@@ -18,7 +17,7 @@ def index():
 
     total = dao.count_products()
     page_size = app.config['PAGE_SIZE']
-    return render_template("index.html", categories=cates, products=prods, pages=math.ceil(total/page_size))
+    return render_template("index.html", categories=cates, products=prods, pages=math.ceil(total / page_size))
 
 
 @app.route("/login", methods=['get', 'post'])
@@ -57,6 +56,45 @@ def register_process():
             err_msg = 'Mật khẩu không khớp!'
 
     return render_template('register.html', err_msg=err_msg)
+
+
+@app.route('/api/carts', methods=['post'])
+def add_to_cart():
+    """
+    {
+        "1": {
+            "id":"1",
+            "name":"..",
+            "price": 123,
+            "quantity": 2
+        },
+        "2":{
+            "id":"2",
+            "name":"..",
+            "price": 123,
+            "quantity": 1
+        }
+    }
+    """
+    cart = session.get('cart')
+    if not cart:
+        cart = {}
+    id = str(request.json.get('id'))
+    name = request.json.get('name')
+    price = request.json.get('price')
+
+    if id in cart:
+        cart[id]["quantity"] += 1
+    else:
+        cart[id] = {
+            "id": id,
+            "name": name,
+            "price": price,
+            "quantity": 1
+        }
+    session['cart'] = cart
+    print(cart)
+    return jsonify(utils.stats_cart(cart))
 
 
 @login.user_loader

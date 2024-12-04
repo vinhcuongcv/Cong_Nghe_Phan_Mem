@@ -1,7 +1,7 @@
 import random
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum
-from app import db, app
+from saleapp.app import db, app
 from enum import Enum as RoleEnum
 import hashlib
 from flask_login import UserMixin
@@ -18,7 +18,7 @@ class User(db.Model, UserMixin):
     username = Column(String(100), nullable=False, unique=True)
     password = Column(String(100), nullable=False)
     avatar = Column(String(100),
-                    default="https://res.cloudinary.com/dxxwcby8l/image/upload/v1690528735/cg6clgelp8zjwlehqsst.jpg")
+    default="https://res.cloudinary.com/dxxwcby8l/image/upload/v1690528735/cg6clgelp8zjwlehqsst.jpg")
     user_role = Column(Enum(UserRole), default=UserRole.USER)
 
 
